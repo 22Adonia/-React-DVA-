@@ -1,0 +1,3 @@
+JSX其实本质上是一种新的语言，只不过它设计成JavaScript一种扩展，所以，其语法绝大部分都和JavaScript一样。而同时它搭配一个JSX Transform的工具可以
+将JSX编译为原生的JavaScript。那么这样做好处是什么呢？当然了，首要任务就是让你写代码方便点，否则想想每次都要 React.createElement 也是醉了！其次呢
+，另一个好处就是它可以让你书写ES6之类的语法，就和CoffeeScript是一个道理，最终它会翻译到浏览器兼容的语法。
