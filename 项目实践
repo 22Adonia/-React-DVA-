@@ -1,0 +1,282 @@
+本章节介绍windows系统下react+dva构建项目实现过程，将前面介绍的知识点进行整合，主要包括：项目的搭建、基本配置、目录规划、路由配置、前端通过调用
+后台restful接口获取数据、react组件间的数据传递等。
+
+创建项目
+
+这里通过dva来快速新建一个项目，当然在次之前需要提前准备好node环境 
+1) 安装node
+
+下载：https://nodejs.org/en/download/
+安装：
+检测：命令行下输入 node -v
+2) 安装dva-cli
+
+安装： npm install dva-cli -g
+检测：dva-v
+3) 利用dva创建项目
+
+dva new PORTAL //会创建 PORTAL 目录，并在该目录下生成一些基本配置文件
+4) 启动应用
+
+在PORTAL目录下，执行命令 npm start
+
+基本配置
+
+在项目创建成功之后，会在项目下看到一些基础配置文件，这也是一点通过dva来构建项目的方便之处。一般可以看到以下几个配置文件：.eslintrc、.editorconfig、
+.roadhogrc、.roadhogrc.mock.js、package.json，这里简单了解两个配置文件：roadhogrc和package.json。基于npm模式开发的时候，和以前那样纯粹的写js
+代码不同，因为这是面向模块化的前端开发。有关于前端模块化开发，这里提供一个介绍文档。
+
+基于npm模式的前端开发
+
+package.json配置文件非常像maven中的pom.xml文件，虽然它还有其它用途，但在很多情况下，都有着管理模块的的作用，例如：
+
+"dependencies": {
+ "antd": "^2.10.0",
+ "babel-plugin-import": "^1.1.1",
+ "babel-runtime": "^6.9.2",
+ "dva": "^1.2.1",
+ "echarts": "^3.5.4",
+  "qs": "^6.4.0",
+ "react": "^15.4.0",
+ "react-bootstrap": "^0.31.0",
+  "react-dom": "^15.4.0"
+ },
+
+将项目中需要用到的模块添加进package.json文件，然后执行 npm install 就可以将这些模块从npm库下载到本地。 
+.roadhogrc配置文件里面的内容是一个json对象，是对roadhog模块的配置
+
+  "entry": "src/desktop/index.js",
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080/api/",
+      "changeOrigin": true,
+      "pathRewrite": { "^/api" : "" }
+    },
+    "/oauth": {
+      "target": "http://localhost:8080/oauth/",
+      "changeOrigin": true,
+      "pathRewrite": { "^/oauth" : "" }
+    }
+  },
+
+以上是代码中，entry 指定了整个项目的入口文件；proxy设置了代理，上面的意思是会配置所有以api开头的请求
+
+目录规划
+
+前端应用越来越复杂，也越来越规范，在前后端分离的系统中，前端实际上已经控制了MVC模式中的Controller和View层，而后端仅仅是作为M层提供数据。
+因此，在前端应用开发过程中，特别是基于React这套前端框架的应用中，目录规划显得十分重要。在利用dva开发前端构建react的应用中，主要划分为以下几个目录：
+components、container、models、routes、services、utils、styles 以下是项目目录截图： 
+https://img-blog.csdn.net/20170527114137575?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3BpbGxlZHllYXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast
+components：最基础的组件。这里面存放的只是最基本的UI组件，这些组件接收外部传过来的参数（数据），并将这些数据渲染的到界面。根据传入的参数的不同，界面渲染也不同。
+container：contatiner负责将数据的组件进行连接，相当于将compontent组件和store里面的数据进行包装，生成一个新的有数据的组件。然后，在router.js配置文件中引用container中的组件。 
+routers：router目录其实和container目录基本一样，只是在利用dva开发的应用中叫router，在不是利用dva开发的应用中叫container而已，两者有一个即可。
+models：model是dva中的一个重要概念，也可以看作是前端中的数据层。在我的理解里，dva将model以 
+namespace作为唯一标识进行区分，然后将所有model的数据存储到redux 
+中的store里面。在引用的时候，通过各个model的namespace进行引用。Model，是一个处理数据的地方，在model里面调用service层获取数据。 
+services：services负责向后台请求数据，在services里调用后台提供的api获取数据。
+utils：工具类目录，比如常见的后台接口请求工具类。
+styles：存放css或less样式文件。
+constants.js：在里面定义一些通用的常量。
+router.js：配置整个应用的路由。
+index.js：整个应用的入口文件，dva和其它框架稍有不同。
+
+路由配置
+
+路由配置主要是为了控制在浏览器上界面的跳转。这里引用的是react-router这个框架。在router.js里面对整个应用的路由惊醒配置。主要注意的几点就是：在router.js里面引用的一般都是container组件，通过配置，将路径和对应的要在浏览器上加载的组件对应起来，再通过window.location.hash或者是‘routerRedux’这个组件进行路由之间的转跳。
+
+import React from 'react';
+import { Router, Route, IndexRoute, history} from 'dva/router';
+import qaBasic from './container/qa/qaBasic';
+import qaGuide from './container/qa/qaGuide';
+import qaQuestion from './container/qa/qaQuestion';
+import qaAskBasic from './container/qa/qaAskBasic';
+function RouterConfig({ history }) {
+  return (
+    <Router history={history}>
+      <Route path='/qaBasic' component={qaBasic}>
+        <Route path="/qa/qaGuide" component={qaGuide}/>
+      </Route>
+    </Router>
+  )
+}
+export default RouterConfig;
+
+以上便是一个最基础的路由配置，path对应的是浏览器上地址栏的路径，component是访问该路径时将会在界面上加载的组件。还有这里用到了router嵌套，
+即在一个router里面嵌套另外一个router，这种情况下，在访问子router对应的路径时，会先加载父router对应的组件，然后再父组件里面加载子router对应的组件。
+
+前后端交互
+
+在前后端分离的项目中，前后端的数据交互式通过在前端应用中调用后端提供的restful接口获取数据。在dva构建的前端应用中，标准的前后端交互大概是这个流程： 
+1) 新建一个model 
+model是dva中非常重要的一个概念，dva中的model实际上类似于封装了redux里面的action和reducer，并给每个model提供一个namespace交于strore管理。这样，
+在外部引用的时候，可以直接获取到model对应的namespace，然后根据namespace获取数据。 
+新建一个model主要注意以下几个细节：
+
+model需要在 index.js 里面声明 
+app.model(require(‘./models/qa));
+
+model里面需要有namesapce这个属性值
+
+外部使用model里面的方法值时需要通过namespace 
+namespace/方法名
+
+import dva from 'dva';
+import * as service from '../services/qa';
+export default {
+namespace: 'qa',
+state: {
+     questionList:[],
+}，
+subscriptions: {
+    setup ({ dispatch }) {
+        dispatch({ type: 'fetchGuide',payload:{}});
+    },
+},
+effects: {
+    *fetchGuide({ payload:{guidelineId}},{ call, put }) {                                                                           const {rows}  = yield call(service.fetchGuide, {guidelineId});
+    yield put({
+    type: 'guideSave',
+    payload: { guideList: rows}  
+    });    
+},
+reducers: {
+guideSave(state, { payload: { guideList, breadcrumb} } ) {
+    return { ...state, guideList};
+},
+},
+};
+以上新建了一个namespace 为 ‘qa’的model，并在effects里面添加了一个fetchGuide方法和在reducers里面添加了一个guideSave方法。
+
+Subscriptions里面的内容表示在项目启动加载model的时候就会执行，dispatch({ type: ‘fetchGuide’,payload:{}});就相当于在项目启动的时候，就会先调用一次effects里面的fetchGuide方法；
+
+effects里面的put 方法，会调用reducers 里面的方法，根据方法中参数type的值找到reducers中的那个方法并执行。这个过程其原理就是redux中 dispatch 一个action的过程。
+
+reducers里面的 方法负责改变store中的值，其实也只有通过这种方式才能改变store中的值。
+
+2) 新建一个service 
+在上面的model中，可以发现有这样代码： 
+import * as service from ‘../services/qa’; 
+const {rows} = yield call(service.fetchGuide, {guidelineId}); 
+其中yeild 是ES6中的关键字，表示以同步的写法来实现异步操作。可以发现，这里引入了一个service目录下的qa.js文件，并调用了该文件中的fetchGuide方法
+
+import request from '../utils/request';
+import {stringify} from 'qs';
+const headers={
+     'Content-Type': 'application/x-www-form-urlencoded;utf-8',
+};
+// 查看指引
+export function fetchGuide(body={}) {
+body.access_token = localStorage.access_token;
+ return request(`/api/qa/guide`,{
+    method: 'POST',
+    headers: headers,
+    body: stringify(body)
+});
+}
+
+可以看到，这个文件比较简单： 
+首先从utils目录学引入了一个工具类，该工具类主要用来请求后端数据。就是 
+一个工具类而已，传入两个参数，一个是后台提供的restful API地址，一个是参 
+数。然后得到后台返回的数据，这就是这个工具类的主要用途。然后再service的 
+fetchGuide方法里面，传入参数进行调用，并最终返回后台数据。也就是说，在 
+model里面调用service，可以获取后台的数据，然后保存到store中。
+
+3) 配置代理 
+这一部分的内容我其实并不太清楚它的前因后果。目前知道的做法是这样的，在我们的.roadhogrc配置文件中，添加以下内容：
+
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080/api/",
+      "changeOrigin": true,
+      "pathRewrite": { "^/api" : "" }
+    },
+    "/oauth": {
+      "target": "http://localhost:8080/oauth/",
+      "changeOrigin": true,
+      "pathRewrite": { "^/oauth" : "" }
+    }
+  },
+
+以上内容表示在前端请求以‘api’为前缀的api的时候，会使用代理：怎么说呢，就相当于在请求/api/qa/guide 这个路径的时候，最后实际上请求的路径会是
+http://localhost:8080/api/ qa/guide，这样一方面方便了我们配置，在改变ip的时候只需要在配置文件里面改革ip就可以了，很方便。但不是很了解这个到底是
+怎么一个流程？还有，使用这种方式会自动解决js跨域的问题吗？因为在一般情况下，js跨域问题是需要去解决的，那这种方式呢？还不是很懂。 
+因此，dva中的前后端交互主要就是以下流程： 
+https://img-blog.csdn.net/20170527115236480?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3BpbGxlZHllYXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast
+组件数据流
+
+前一小节讲解了在dva中的前后端交互流程，在获取到数据之后，接下来面临的一个问题就是怎么将数据传递到组件上了。 
+我们知道，react是自上而下的单向数据流，也就是从父组件传递到子组件，而不能从子组件传递到父组件。那么当我们需要将子组件的数据传递到父组件时，该怎么办呢？一种方法是使用回调函数，当发生某个操作时执行回调函数改变state然后重新渲染界面。还有一种方法是使用第三方框架。Dva中就包含了一个这样的框架：redux 
+在redux中，通过store管理所有的state，dva只是将几个框架进行整合，根本的东西其实根本没有一丝改变，所以dva中model里面的那些数据其实都是存储在store里面
+的。Model下的namespace，就相当于是store下的一个个属性。理解清楚了这个，那么给组件传递数据的流程也就清楚了。 
+1) 在container组件中，通过redux中的connect获取store里面的数据 
+这就是redux那一套的标准写法。首先就是在container组件里面引用components组件，然后将store下的数据传递到components组件上
+
+import { connect } from 'dva';
+import QaQuestion from '../../components/qa/QaQuestion';
+const qaQuestion = ({qa})=>{
+    return (
+        <QaQuestion props={qa.questionList}/>
+    );
+}
+export default connect(({ qa }) => ({ qa }))(qaQuestion);
+
+以上就是一个container组件，当然，上面的写法其实有点多余：const qaQuestion 这里其实生成的还是一个components组件，然后将QaQuestion 这个components
+组件包装到qaQuestion 组件里面，这里有点多余。但是不影响我们分析问题。Connect是redux提供的一个函数，作用是将数据和组件连接起来，也就是所谓的向
+components组件传递数据。在这里我们传递了一个qa参数，其实这是一个namespace名为qa的model，当然，数据最终是存储在store下面。也就是说，我们通过connect
+这个函数，可以直接拿到store里面的数据（model也是在store里面）；然后再qaQuestion这个组件上，接收一个参数，也就是connect高阶函数中取出的那个参数，
+然后我们再将 qa下面的questionList值传递给了QaQuestion组件，参数名为 props，这样我们就可以在QaQuestion组件中直接使用props（它的值就是qa. questionList）
+这个参数了。
+
+2) 在components组件中使用传递过来的数据
+
+const QaQuestion =({props})=>{
+return(
+<div>
+    props.map((item)=>
+    <div key={item.questionId} header={item.questionName}>
+        <p>{item.comments}</p>
+    </div>
+    )
+</div>
+);
+};
+export default QaQuestion;
+
+从上可以看出，已经使用到了container里面传过来的参数。
+
+Dva启动文件
+
+默认情况是index.js，当然这个可以在.roadhogrc配置文件中进行配置。以下是index.js内容
+
+import dva from 'dva';
+import './styles/common.css';
+// 1. Initialize
+const app = dva();  
+
+// 2. Plugins  
+// app.use({});    
+
+// 3. Model
+app.model(require('./models/login'));
+app.model(require('./models/qa'));
+
+// 4. Router
+app.router(require('./router'));  
+
+// 5. Start  
+app.start('#root');    
+
+在dva中，项目启动主要分为以下过程：第一步是实例化一个dva对象；第二步是添加需要使用到的插件；第三步是添加需要使用到的model；第四部是添加路由配置；
+第五步是调用dva中的start方法，该方法接收一个参数，这个参数是html文件中某个元素的id，作为整个应用的挂载点。
+
+hml文件默认是public目录下的index.html文件，以下是html文件的内容，非常简单，在body标签下面只有一个div标签，这个div就是作为整个应用的挂载点。
+其中还有个
+
+<!DOCTYPE html>
+<html lang="en">
+<head></head>
+<body>
+    <div id="root"></div>
+    <script src="index.js"></script>
+</body>
+</html>
