@@ -1,0 +1,10 @@
+Redux 的作用跟 Flux 是一样的，它可以看作是 Flux 的一种实现，但是又有点不同。
+
+Redux 只有一个 store 。Flux 里面会有多个 store 存储应用数据，并在 store 里面执行更新逻辑，当 store变化的时候再通知 controller-view 更新自己的数据，Redux 将各个 store 整合成一个完整的 store，并且可以根据这个 store 推导出应用完整的 state。同时 Redux 中更新的逻辑也不在 store 中执行而是放在reducer 中。
+
+没有 Dispatcher。 Redux 中没有 Dispatcher 的概念，它使用 reducer 来进行事件的处理，reducer 是一个纯函数，这个函数被表述为 (previousState, action) => newState ，它根据应用的状态和当前的 action 推导出新的 state。Redux 中有多个 reducer，每个 reducer 负责维护应用整体 state 树中的某一部分，多个 reducer 可以通过 combineReducers 方法合成一个根reducer，这个根reducer负责维护完整的 state，当一个 action 被发出，store 会调用 dispatch 方法向某个特定的 reducer 传递该 action，reducer 收到 action 之后执行对应的更新逻辑然后返回一个新的 state，state 的更新最终会传递到根reducer处，返回一个全新的完整的 state，然后传递给 view。 
+Redux 和 Flux 之间最大的区别就是对 store/reducer 的抽象，Flux 中 store 是各自为战的，每个 store 只对对应的 controller-view 负责，每次更新都只通知对应的 controller-view；而 Redux 中各子 reducer 都是由根reducer统一管理的，每个子reducer的变化都要经过根reducer的整合。用图表示的话可以像这样： 
+Flux 中的 store ： 
+https://img-blog.csdn.net/20170527112712508?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3BpbGxlZHllYXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast
+Redux 中的 store（或者叫 reducer） :
+https://img-blog.csdn.net/20170527112746162?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3BpbGxlZHllYXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast
