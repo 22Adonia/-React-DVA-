@@ -4,3 +4,153 @@ React是近期非常火热的一个前端开发框架，当然也有很多人认
 这个过程大概类似于用乐高积木去瓶装不同的物体。我们称这种编程方式称为组件驱动开发。作为Facebook推出的一个JS库，React除了技术本身，人们更看重它的其实
 是它那种独特的开发思想，并在此基础上衍生出了一些列相关技术。React 通过对虚拟 DOM 中的微操作来实对现实际 DOM 的局部更新，提高性能。其组件的模块化开发
 提高了代码的可维护性，单向数据流的特点，让每个模块根据数据量自动更新。
+
+JSX语法
+
+JSX其实本质上是一种新的语言，只不过它设计成JavaScript一种扩展，所以，其语法绝大部分都和JavaScript一样。而同时它搭配一个JSX Transform的工具可以将
+JSX编译为原生的JavaScript。那么这样做好处是什么呢？当然了，首要任务就是让你写代码方便点，否则想想每次都要 React.createElement 也是醉了！其次呢，
+另一个好处就是它可以让你书写ES6之类的语法，就和CoffeeScript是一个道理，最终它会翻译到浏览器兼容的语法。
+
+虚拟DOM
+
+在传统的 Web 应用中，我们往往会把数据的变化实时地更新到用户界面中，于是每次数据的微小变动都会引起 DOM 树的重新渲染。如果当前 DOM 结构较为复杂，频繁的
+操作很可能会引发性能问题。React 为了解决这个问题，引入了虚拟 DOM 技术 
+虚拟 DOM 是一个 JavaScript 的树形结构，包含了 React 元素和模块。组件的 DOM 结构就是映射到对应的虚拟 DOM 上，React 通过渲染虚拟 DOM 到浏览器，使得
+用户界面得以显示。与此同时，React 在虚拟的 DOM 上实现了一个 diff 算法，当要更新组件的时候，会通过 diff 寻找到要变更的 DOM 节点，再把这个修改更新到
+浏览器实际的 DOM 节点上，所以在 React 中，当页面发生变化时实际上不是真的渲染整个 DOM 树。
+
+组件概念
+
+虚拟DOM不仅带来了简单的UI开发逻辑，同时也带来了组件化开发的思想，所谓组件，即封装起来的具有独立功能的UI部 件。React推荐以组件的方式去重新思考UI构成，
+将UI上每一个功能相对独立的模块定义成组件，然后将小的组件通过组合或者嵌套的方式构成大的组件， 最终完成整体UI的构建。 
+如果说MVC的思想让你做到视图-数据-控制器的分离，那么组件化的思考方式则是带来了UI功能模块之间的分离。对于MVC开发模式来说，开发者将三者定义成不同的类，
+实现了表现，数据，控制的分离。开发者更多的是从技术的角度来对UI进行拆分，实现松耦合。对于React而言，则完全是一个新的思路，开发者从功能的角度出发，将UI
+分成不同的组件，每个组件都独立封装。 
+在React中，按照界面模块自然划分的方式来组织和编写的代码，整个UI是一个通过小组件构成的大组件，每个组件只关心自己部分的逻辑，彼此独立。
+
+组件特性
+
+可组合：一个组件易于和其它组件一起使用，或者嵌套在另一个组件内- 部。如果一个组件内部创建了另一个组件，那么说父组件拥有它创建的子组件，通过这个特性，
+一个复杂的UI可以拆分成多个简单的UI组件；
+可重用：每个组件都具有独立功能，可以被使用在多个UI场景；
+可维护：每个小的组件仅仅包含自身的逻辑，更容易被理解和维护；
+可测试：每个组件都是独立的，所以方便测试。
+数据流props、state
+
+在React中，数据流向是单向的从父节点传递到子节点，因而组件是简单且易于把握的，他们只需从父节点获取props渲染即可。如果顶层组件的某个prop改变了，React
+会递归地向下遍历整棵组建树，重新渲染所有使用这个属性的组件。 React组件内部还具有自己的状态，这些状态只能在组件内修改。React组件本身很简单，你可以把
+他们看成是一个函数，他接受props和state作为参数，返回一个虚拟的DOM表现。简单的来讲，react利用props形成单向的数据流，利用state更新界面。
+
+数据流与props 
+React中的数据流是单向的，只会从父组件传递到子组件。属性props（properties）是父子组件间进行状态传递的接口，React会向下遍历整个组件树，并重新渲染使用
+这个属性的组件。
+组件内部状态state 
+props可以理解为父组件与子组件间的状态传递，而React的组件都有自己的状态，这个内部状态使用state表示。state是组建的属性，主要用来存储组件自身需要的数据
+。它是可以改变的，它的每次改变都会引起组件的更新，这也是ReactJS中的关键点之一。每次数据的更新都是通过修改state属性的值，然后ReactJS内部会监听state
+属性的变化，一旦发生变化，就会主动出发组件的render方法来更新DOM结构。简单来讲：用户界面随着state的变化而变化。
+
+哪些组件应该有state? 
+大部分组件的工作应该是从props里取数据并渲染出来，但有时需要对用户输入、服务器请求或者时间变化等作出响应，这时才需要state。组件应该尽可能的无状态化，
+这样能隔离state，把它放到最合理的地方(Redux做的就是这个事情?)，也能减少冗余并易于解释程序运作过程。 
+常用的模式就是创建多个只负责渲染数据的无状态(stateless)组件，在他们的上层创建一个有状态(stateful)组件并把它的状态通过props传给子级。有状态的组件
+封装了所有的用户交互逻辑,而这些无状态组件只负责声明式地渲染数。 
+哪些应该作为state? 
+state应该包括那些可能被组件的事件处理器改变并触发用户界面更新的数据.这中数据一般很小且能被JSON序列化。当创建一个状态化的组件的时候,应该保持数据的精简,
+然后存入this.state.在render()中在根据state来计算需要的其他数据.因为如果在state里添加冗余数据或计算所得数据,经常需要手动保持数据同步。 
+那些不应该作为state? 
+this.state应该仅包括能表示用户界面状态所需要的最少数据，因此不应该包括： 计算所得数据； React组件：在render()里使用props和state来创建它； 
+基于props的重复数据：尽可能保持用props来做作为唯一的数据来源，把props保存到state中的有效的场景是需要知道它以前的值得时候，因为未来的props可能会变化。
+
+组件创建
+
+React提供3种方法创建组件，具体的3种方式： 
+1) 函数方式：通过定义函数创建无状态组件 
+2) ES6方式：通过extends React.Component创建组件 
+3) ES5原生方式：通过extend React.createClass定义的组件 
+无状态组件 
+创建无状态组件形式是从React 0.14版本开始出现的。它是为了创建纯展示组件，这种组件只负责根据传入的props来展示，不涉及到要改变state状态的操作。在大部分
+React代码中，大多数组件被写成无状态的组件，通过简单组合可以构建成其他的组件等；这种通过多个简单然后合并成一个大应用的设计模式被提倡。
+
+const QaQuestion =({props})=>{
+  return(
+    <div> hello world </div>
+  )
+}
+
+以上代码就创建一个名为QaQuestion的无状态组件，该组件接收一个props参数，仅仅包含一个div无状态组件的创建形式使代码的可读性更好，并且减少了大量冗余的
+代码，大大的增强了编写一个组件的便利，除此之外无状态组件还有以下几个显著的特点：
+
+组件不会被实例化，整体渲染性能得到提升 
+由于是无状态组件，所以无状态组件就不会在有组件实例化的过程，无实例化过程也就不需要分配多余的内存，从而性能得到一定的提升。
+组件不能访问this对象 
+无状态组件由于没有实例化过程，所以无法访问组件this中的对象，例如：this.ref、this.state等均不能访问。若想访问就不能使用这种形式来创建组件
+组件无法访问生命周期的方法 
+因为无状态组件是不需要组件生命周期管理和状态管理，所以底层实现这种形式的组件时是不会实现组件的生命周期方法。所以无状态组件是不能参与组件的各个生命周
+期管理的。
+无状态组件只能访问输入的props，同样的props会得到同样的渲染结果
+无状态组件被鼓励在大型项目中尽可能以简单的写法来分割原本庞大的组件，未来React也会这种面向无状态组件在譬如无意义的检查和内存分配领域进行一系列优化，
+所以只要有可能，尽量使用无状态组件。
+
+原生React.createClass方式创建 
+React.createClass是react刚开始推荐的创建组件的方式，现在已经不推荐使用：
+
+var ES5Compant = React.createClass({
+    render: function() { 
+        return ( 
+            <div> something: </div> 
+        ); 
+    } 
+});
+
+通过React.createClass方式和extends React.Component方式创建的组件都是有状态组件。但是随着React的发展，通过React.createClass这创建组件的这种方式也
+暴露出一些问题，并且在将来的React版本中，将不在支持这种方式创建组件，因此这种方式并不推荐使用。
+
+extends React.Components方式创建 
+React.Component是以ES6的形式来创建react的组件的，是React目前极为推荐的创建有状态组件的方式，最终会取代React.createClass形式。
+
+class ES6Compant extends React.Component { 
+    constructor(props) { 
+        super(props); 
+        // 设置 initial state 
+        this.state = { 
+            text: props.initialValue || 'placeholder' 
+        }; 
+    }
+    render() { 
+        return ( <div> something </div> ); 
+    } 
+}
+
+React.createClass创建的组件，其状态state是通过getInitialState方法来配置组件相关的状态；React.Component创建的组件，其状态state是在constructor中
+像初始化组件属性一样声明的。
+
+组件生命周期
+
+在组件的整个生命周期中，随着该组件的props或者state发生改变，它的DOM表现也将有相应的变化，一个组件就是一个状态机：对于特定的输入，它总会返回一致的输出
+。 React为每个组件提供了生命周期钩子函数去响应不同的时刻，组件的生命周期分为三个部分：（1）实例化；（2）存在期；（3）销毁&清理期。
+
+https://img-blog.csdn.net/20170527112012988?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3BpbGxlZHllYXI=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast
+getInitialState： 初始化组件的state的值，其返回值会赋值给组件的this.state属性。对于组件的每个实例来说，这个方法的调用次数有且只有一次。与
+getDefaultProps方法不同的是，每次实例创建时该方法都会被调用一次。
+
+componentWillMount ：此方法会在完成首次渲染之前被调用。这也是在render方法调用前可以修改组件state的最后一次机会。 
+render ：生成页面需要的虚拟DOM结构，用来表示组件的输出。Render需要满足：（1）只能通过this.props和this.state访问数据； 
+（2）可以返回null、false或者任何React组件； 
+（3）只能出现一个顶级组件； 
+（4）必需纯净，意味着不能改变组件的状态或者修改DOM的输出。
+
+componentDidMount： 该方法发生在render方法成功调用并且真实的DOM已经被渲染之后，在该函数内部可以通过this.getDOMNode()来获取当前组件的节点。然后
+就可以像Web开发中的那样操作里面的DOM元素了。
+
+componentWillReceiveProps ：在任意时刻，组件的props都可以通过父辈组件来更改。当组件接收到新的props(这里不同于state）时，会触发该函数，我们同时也
+获得更改props对象及更新state的机会。
+
+shouldComponentUpdate： 该方法用来拦截新的props和state，然后开发者可以根据自己设定逻辑，做出要不要更新render的决定，让它更快。
+
+componentWillUpdate： 与componentWillMount方法类似，组件上会接收到新的props或者state渲染之前，调用该方法。但是不可以在该方法中更新state和props。
+
+componentDidUpdate ：与componentDidMount类似，更新已经渲染好的DOM。
+
+componentWillUnmount：该方法会在组件被移出之前调被调用。在componentDidMount方法中添加的所有任务都需要在该方法中撤销，比如说创建的定时器或者添加的
+事件监听等。
+
