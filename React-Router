@@ -1,0 +1,21 @@
+React-Router 是一个为 React 设计的强大的路由库。可以帮助我们快速的实现路由功能，包括 URL 和 React components 之间的同步映射关系。
+React Router 使用教程:
+http://www.ruanyifeng.com/blog/2016/05/react_router.html?utm_source=tool.lu%20React%20Router%20%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B
+前端路由 前端的路由和后端的路由在实现技术上不一样，但是原理都是一样的。在 HTML5 的 history API出现之前，前端的路由都是通过 hash 来实现的，hash 
+能兼容低版本的浏览器，它的 URI 规则中需要带上 #。例如：http://localhost:8000/#/login Web 服务并不会解析 hash，也就是说 # 后的内容 Web服务都会
+自动忽略，但是 JavaScript 是可以通过 window.location.hash读取到的，读取到路径加以解析之后就可以响应不同路径的逻辑处理。 history 是 HTML5 才有
+的新 API，可以用来操作浏览器的session history (会话历史)。基于 history 来实现的路由可以不需要#，例如localhost:8080/login
+
+前端路由 
+先看一段配置代码
+
+component={qaBasic}>
+   <Route path="/qaBasic/qaGuide" component={qaGuide}/>
+   <Route path="/qa/qaQuestion" component={qaQuestion}/>    
+   <Route path="/qa/qaAskBasic" component={qaAskBasic}/>   
+   </Route> 
+   </Router>
+
+Router组件本身只是一个容器，真正的路由要通过Route组件定义，path对应的是访问路径，component是该路径对应的组件。例如：在浏览器中访问/qaBasic的时候，
+会加载qaBasic这个组件。当然这里还有组件嵌套，也就是在一个Route里面包含另一个子Route，表明在访问子组件的时候，会先加载父组件，然后再父组件里面加载
+子组件。
