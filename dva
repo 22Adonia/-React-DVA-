@@ -2,3 +2,5 @@ dva 是基于现有应用架构 (redux + react-router + redux-saga 等)的一层
 ( Inspired by elm and choo. )dva 是 框架，不是 library，类似 emberjs，会很明确地告诉你每个部件应该怎么写，这对于团队而言，会更可控。
 另外，除了 react 和 react-dom 是 peerDependencies 以外，dva 封装了所有其他依赖。dva 实现上尽量不创建新语法，而是用依赖库本身的语法，
 比如 router 的定义还是用 react-router 的 JSX 语法的方式。
+dva介绍:
+https://github.com/dvajs/dva/issues/1
